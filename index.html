@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Horas e Cartão de Ponto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="tabs">
+        <button id="simple-tab" class="active">Calculadora Simples</button>
+        <button id="advanced-tab">Calculadora Avançada</button>
+    </div>
+
+    <div class="container">
+        <div id="simple-content" class="tab-content active">
+            <div class="text-center mb-4">
+                <h1>Calculadora de Horas</h1>
+            </div>
+
+            <div id="simple-time-inputs">
+                <!-- Rows will be dynamically generated here -->
+            </div>
+
+            <div class="d-flex justify-content-center gap-2 mt-3 flex-column-mobile btn-group-mobile-stack">
+                <div class="btn-group w-100" style="max-width:400px;" role="group">
+                    <button type="button" class="btn btn-primary" id="simple-tcpAdd">➕ Adição</button>
+                    <button type="button" class="btn btn-outline-primary" id="simple-tcpSubtract">➖ Subtração</button>
+                </div>
+                <button type="button" class="btn btn-danger" id="simple-tcpReset" title="Reiniciar Tudo">🔄</button>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+                <h4>Total:</h4>
+                <h4 id="simple-tcpResult">0h 0m 0s</h4>
+            </div>
+        </div>
+
+        <div id="advanced-content" class="tab-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Cartão de Ponto</h2>
+            </div>
+
+            <form method="post" id="main-form" enctype="application/x-www-form-urlencoded">
+
+                <div class="d-flex header-controls">
+                    <div style="flex: 2;">
+                        <label for="title" class="form-label">Nome ou Cargo</label>
+                        <input type="text" class="form-control" id="title" placeholder="João Ninguém" value=""
+                            autofocus>
+                    </div>
+                    <div style="flex: 1.5;">
+                        <label for="date" class="form-label">Intervalo de Datas</label>
+                        <input type="text" class="form-control" id="date" name="dates" value="">
+                    </div>
+                    <div class="d-flex align-items-center header-toggles pb-1">
+                        <label class="form-switch">
+                            <span class="form-switch-label">24h</span>
+                            <input class="form-switch-input" type="checkbox" id="time-format" name="24h_format">
+                            <span class="form-switch-slider"></span>
+                        </label>
+                        <label class="form-switch">
+                            <span class="form-switch-label">Pausas</span>
+                            <input class="form-switch-input" type="checkbox" id="break-setting" name="add_breaks">
+                            <span class="form-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="table-header mt-3" id="timesheet-header">
+                    <span>DIA</span>
+                    <span>ENTRADA / SAÍDA</span>
+                    <span class="second-column">PAUSA</span>
+                    <span class="text-end">TOTAL</span>
+                </div>
+
+
+                <div id="timesheet">
+                    <!-- Dynamic Rows Here -->
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <label class="form-switch">
+                        <span class="form-switch-label">Mostrar fim de semana</span>
+                        <input class="form-switch-input" type="checkbox" id="weekend-setting" name="show_weekend">
+                        <span class="form-switch-slider"></span>
+                    </label>
+                    <a href="#" class="btn btn-link" id="clear">Limpar tudo</a>
+                </div>
+
+                <div class="settings mt-3 pt-3 border-top d-flex gap-3 flex-column-mobile">
+                    <!-- Settings Inputs Here -->
+                </div>
+
+                <div id="advanced-totals" class="mt-3 border-top pt-3">
+                    <div id="total-summary">
+                        <div class="d-flex gap-3 align-items-center">
+                            <h4>Horas: <span id="total-hours">0:00</span></h4>
+                            <div class="rate-hidden">
+                                <h4>Pagamento: <span id="total-pay">0.00</span></h4>
+                            </div>
+                        </div>
+                        <div class="overtime-hidden mt-2" id="overtime-totals">
+                            <h6 id="overtime-pay" style="color: #6c757d; font-weight: 500;"></h6>
+                            <h6 id="overtime-hours" style="color: #6c757d; font-weight: 500;"></h6>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="calculate">Calcular</button>
+                </div>
+
+                <div id="hoursChart" class="mt-4" style="position: relative; height:300px">
+                    <canvas id="dailyHoursChart"></canvas>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 flex-column-mobile btn-group-mobile-stack">
+                    <button type="button" class="btn btn-outline-primary" id="bookmark"><i
+                            class="bi bi-bookmark-star"></i> Favoritos</button>
+                    <button type="button" class="btn btn-outline-primary" id="sendEmail"><i class="bi bi-envelope"></i>
+                        Enviar e-mail</button>
+                    <button type="button" class="btn btn-success" id="print"><i
+                            class="bi bi-file-earmark-arrow-down"></i> Baixar PDF</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="bookmarkModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar aos Favoritos</h5><button type="button"
+                        class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Pressione <mark id="bookmark-shortcut"></mark> para adicionar esta página aos favoritos.</p>
+                    <label for="bookmarkUrl" class="form-label">URL para Compartilhar</label><input type="text"
+                        class="form-control" id="bookmarkUrl" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="emailModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enviar por E-mail</h5><button type="button"
+                        class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body"><label for="emailAddress" class="form-label">Endereço de e-mail</label><input
+                        type="email" class="form-control" id="emailAddress" placeholder="seu@email.com"><button
+                        type="button" class="btn btn-primary mt-3 w-100" id="send">Enviar</button>
+                    <div class="mt-3 d-none text-success successNote"><i class="bi bi-check2-circle"></i> E-mail
+                        enviado!</div>
+                    <div class="mt-3 d-none text-danger errorNote"><i class="bi bi-exclamation-diamond"></i> Ocorreu um
+                        problema!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/customParseFormat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/duration.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
